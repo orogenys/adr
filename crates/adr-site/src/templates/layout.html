@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <link rel="preload" href="{{font_inter_href}}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{font_mono_href}}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{stylesheet_href}}">
+  <script>{{theme_bootstrap}}</script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="site-header-top">
+        <p class="site-kicker"><a href="{{home_href}}">{{site_title}}</a></p>
+        {{theme_toggle}}
+      </div>
+      <h1>{{heading}}</h1>
+      {{subtitle}}
+    </div>
+  </header>
+  <main class="wrap">
+    {{body}}
+    <footer class="site-footer">{{footer}}</footer>
+  </main>
+  <script src="{{theme_script_href}}"></script>
+  <script>{{mermaid_bootstrap}}</script>
+  <script>{{highlight_bootstrap}}</script>
+  <script>{{heading_link_bootstrap}}</script>
+</body>
+</html>

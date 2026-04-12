@@ -1,0 +1,16 @@
+[package]
+name = "adr-site"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "adr-site"
+path = "src/main.rs"
+
+[dependencies]
+adr-core = { path = "../adr-core" }
+clap.workspace = true
+pulldown-cmark.workspace = true
+thiserror.workspace = true
