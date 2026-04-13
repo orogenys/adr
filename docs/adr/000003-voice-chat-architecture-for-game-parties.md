@@ -92,32 +92,87 @@ The networking library support for this architecture needs four main components:
 * signaling server
 * relayer server (fallback)
 
-```mermaid
-flowchart TD
-  subgraph Party[Game Party]
-    C1[Client]
-    C2[Client]
-    C3[Client]
-  end
+#### Component responsibilities
 
+##### Client
+
+* joins the game party voice room
+* obtains room membership and connection metadata
+* exchanges signaling messages needed to establish peer connections
+* sends and receives voice traffic directly with peers when possible
+* falls back to the relayer when a direct peer-to-peer path cannot be established
+
+##### Room coordinator server
+
+* owns room membership and party coordination
+* tells clients which peers are in the room
+* provides the information needed to start voice-session setup
+* coordinates join, leave, and room lifecycle events
+
+##### Signaling server
+
+* forwards connection-setup messages between clients
+* helps peers exchange the metadata required to establish direct connectivity
+* participates in setup, but is not part of the steady-state voice media path
+
+##### Relayer server (fallback)
+
+* forwards voice packets only when direct peer-to-peer connectivity is unavailable
+* provides a degraded-but-working path for difficult network environments
+* is intentionally a fallback path rather than the default transport
+
+#### Component view
+
+This simplified view shows one client, the peer clients it needs to talk to, and the three supporting services. The normal voice path is direct to peers. The relay is used only when a direct path cannot be established.
+
+```mermaid
+flowchart LR
+  A[Client]
+  P[Peer Clients]
   RC[Room Coordinator Server]
   SS[Signaling Server]
-  RS[Relayer Server\n(Fallback)]
+  RS[Relayer Server Fallback]
 
-  C1 <-->|room membership / coordination| RC
-  C2 <-->|room membership / coordination| RC
-  C3 <-->|room membership / coordination| RC
+  A -->|join room| RC
+  RC -->|room membership| A
 
-  RC <-->|session setup orchestration| SS
-  C1 <-->|signaling| SS
-  C2 <-->|signaling| SS
-  C3 <-->|signaling| SS
+  RC -->|session setup| SS
+  A -->|signaling| SS
+  SS -->|signaling| P
 
-  C1 <-->|direct voice| C2
-  C2 <-->|direct voice| C3
-  C1 <-->|direct voice| C3
+  A <-->|direct voice| P
 
-  C1 -.->|relay fallback| RS
-  C2 -.->|relay fallback| RS
-  C3 -.->|relay fallback| RS
+  A -.->|relay fallback| RS
+  RS -.->|forward voice| P
+```
+
+#### Client interaction sequence
+
+This sequence shows how one client interacts with the servers and then either connects directly to peers or uses the relay fallback.
+
+```mermaid
+sequenceDiagram
+  participant A as Client
+  participant RC as Room Coordinator Server
+  participant SS as Signaling Server
+  participant P as Peer Clients
+  participant RS as Relayer Server Fallback
+
+  A->>RC: Join voice room
+  RC-->>A: Return room membership and session metadata
+  A->>SS: Send signaling message for peers
+  SS-->>P: Forward signaling message
+  P-->>SS: Return signaling response
+  SS-->>A: Deliver peer response
+  A->>P: Attempt direct peer-to-peer connection
+
+  alt Direct path succeeds
+    A->>P: Send voice packets directly
+    P-->>A: Return voice packets directly
+  else Direct path fails
+    A->>RS: Send voice packets through relay
+    RS-->>P: Forward voice packets
+    P->>RS: Return voice packets through relay
+    RS-->>A: Forward voice packets
+  end
 ```
