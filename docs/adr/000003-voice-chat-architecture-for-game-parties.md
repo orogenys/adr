@@ -82,3 +82,42 @@ This option routes media through a centralized server that receives audio from e
 ## More Information
 
 This decision is intentionally scoped to the first version of in-game voice chat for small parties. If future requirements expand toward larger groups, richer moderation features, recording, or more predictable behavior across difficult network environments, we should revisit this ADR and evaluate an SFU or another more scalable topology.
+
+### Required networking components for the P2P mesh
+
+The networking library support for this architecture needs four main components:
+
+* client
+* room coordinator server
+* signaling server
+* relayer server (fallback)
+
+```mermaid
+flowchart TD
+  subgraph Party[Game Party]
+    C1[Client]
+    C2[Client]
+    C3[Client]
+  end
+
+  RC[Room Coordinator Server]
+  SS[Signaling Server]
+  RS[Relayer Server\n(Fallback)]
+
+  C1 <-->|room membership / coordination| RC
+  C2 <-->|room membership / coordination| RC
+  C3 <-->|room membership / coordination| RC
+
+  RC <-->|session setup orchestration| SS
+  C1 <-->|signaling| SS
+  C2 <-->|signaling| SS
+  C3 <-->|signaling| SS
+
+  C1 <-->|direct voice| C2
+  C2 <-->|direct voice| C3
+  C1 <-->|direct voice| C3
+
+  C1 -.->|relay fallback| RS
+  C2 -.->|relay fallback| RS
+  C3 -.->|relay fallback| RS
+```
