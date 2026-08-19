@@ -2,35 +2,7 @@ use super::{PageKind, Render, ThemeToggleComponent, escape_html, render_template
 
 const LAYOUT_TEMPLATE: &str = include_str!("../templates/layout.html");
 const THEME_BOOTSTRAP: &str = include_str!("../templates/theme-bootstrap.js");
-const MERMAID_BOOTSTRAP: &str = r#"
-window.addEventListener('DOMContentLoaded', () => {
-  if (!document.querySelector('.mermaid')) {
-    return;
-  }
-
-  const initialize = () => {
-    if (!window.mermaid) {
-      return;
-    }
-
-    window.mermaid.initialize({
-      startOnLoad: true,
-      theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
-      securityLevel: 'loose'
-    });
-  };
-
-  if (window.mermaid) {
-    initialize();
-    return;
-  }
-
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
-  script.onload = initialize;
-  document.body.appendChild(script);
-});
-"#;
+const MERMAID_BOOTSTRAP: &str = include_str!("../templates/mermaid-bootstrap.js");
 const HIGHLIGHT_BOOTSTRAP: &str = r#"
 window.addEventListener('DOMContentLoaded', () => {
   if (!document.querySelector('pre code[class*="language-"]')) {

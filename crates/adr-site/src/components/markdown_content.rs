@@ -197,7 +197,16 @@ fn is_mermaid_block(kind: &CodeBlockKind<'_>) -> bool {
 
 fn render_mermaid_block(content: &str) -> String {
     format!(
-        "<pre class=\"mermaid\">{}</pre>",
+        concat!(
+            "<div class=\"mermaid-diagram\">",
+            "<div class=\"mermaid-diagram-toolbar\">",
+            "<button type=\"button\" class=\"mermaid-diagram-action\" data-mermaid-expand hidden>",
+            "Open larger",
+            "</button>",
+            "</div>",
+            "<pre class=\"mermaid\">{}</pre>",
+            "</div>"
+        ),
         escape_html(content.trim())
     )
 }
@@ -458,7 +467,7 @@ mod tests {
 
         assert!(
             html.contains(
-                "<pre class=\"mermaid\">flowchart TD\n  A[ADR-000001] --&gt; B[Done]</pre>"
+                "<div class=\"mermaid-diagram\"><div class=\"mermaid-diagram-toolbar\"><button type=\"button\" class=\"mermaid-diagram-action\" data-mermaid-expand hidden>Open larger</button></div><pre class=\"mermaid\">flowchart TD\n  A[ADR-000001] --&gt; B[Done]</pre></div>"
             )
         );
         assert!(!html.contains("<a href="));
@@ -468,7 +477,16 @@ mod tests {
     fn mermaid_blocks_are_html_escaped() {
         assert_eq!(
             render_mermaid_block("flowchart TD\nA[<unsafe>] --> B"),
-            "<pre class=\"mermaid\">flowchart TD\nA[&lt;unsafe&gt;] --&gt; B</pre>"
+            concat!(
+                "<div class=\"mermaid-diagram\">",
+                "<div class=\"mermaid-diagram-toolbar\">",
+                "<button type=\"button\" class=\"mermaid-diagram-action\" data-mermaid-expand hidden>",
+                "Open larger",
+                "</button>",
+                "</div>",
+                "<pre class=\"mermaid\">flowchart TD\nA[&lt;unsafe&gt;] --&gt; B</pre>",
+                "</div>"
+            )
         );
     }
 
